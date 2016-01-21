@@ -15,12 +15,14 @@ class Checkout < Item
   
   def total
     @basket.map do |basket_key,basket_value|
-      result = @rules.map do |rule_key,rule_value| 
-        [basket_value, rule_value] if rule_key == basket_key
-      end.compact.first
-      quantity = result[0]
+      result = @rules.select{|rule_key,rule_value| rule_key == basket_key}["#{basket_key}"]
+      quantity = basket_value
       price = @@item["#{basket_key}"][:price]
-      @total = @total + eval("#{result[1]}")
+      if result.nil?
+        @total = @total + quantity * price
+      else
+        @total = @total + eval("#{result}")
+      end
     end
     @total
   end
